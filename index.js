@@ -8,5 +8,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 app.get('/', (req, res) => {
-  res.render('pages/main.ejs');
+  res.render('pages/main');
 });
+
+app.listen(PORT, () => console.log(`Listening on ${PORT}`));
