@@ -1,1 +1,1 @@
-Case study for myRetail
+Case study with myRetail
