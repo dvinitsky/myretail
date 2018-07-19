@@ -54,8 +54,10 @@ MongoClient.connect(url, { useNewUrlParser: true, connectTimeoutMS: 30000 }, fun
           let productName = jsonResponse.product.item['product_description'].title;
 
 
+          findDocument(collection, req.params.id, function (result) {
+            res.send({ 'productName': productName, 'productId': req.params.id, 'productPrice': result });
+          });
 
-          res.send({ 'productName': productName, 'productId': req.params.id });
           return;
         }
         throw new Error('Request failed.');
@@ -65,7 +67,6 @@ MongoClient.connect(url, { useNewUrlParser: true, connectTimeoutMS: 30000 }, fun
     }
 
     getData(req.params.id, testExclude);
-
 
   });
 
