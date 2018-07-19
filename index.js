@@ -38,7 +38,7 @@ MongoClient.connect(url, { useNewUrlParser: true }, function (err, client) {
           let productName = jsonResponse.product.item['product_description'].title;
 
 
-          collection.find({ 'id': req.params.id }).toArray((err, result) => {
+          collection.findOne({ 'id': 11346672 }, (err, result) => {
             if (err) throw err;
             res.send({ 'productName': productName, 'productId': req.params.id, 'product': result });
           });
@@ -53,7 +53,6 @@ MongoClient.connect(url, { useNewUrlParser: true }, function (err, client) {
   // End of HTTP call
 
   app.listen(PORT, () => console.log(`Listening on ${PORT}`));
-  client.close();
 });
 // End of MongoDB connection
 
