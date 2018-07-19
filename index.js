@@ -15,12 +15,22 @@ const dbName = 'heroku_75zdms2r';
 
 // API Endpoint provided for test case //
 const testId = 13860428;
+const testExclude = 'taxonomy,price,promotion,bulk_ship,rating_and_review_reviews,rating_and_review_statistics,question_answer_statistics';
 
 
 //////////////////////////////////////////
+const findDocument = function (collection, id, callback) {
+  collection.findOne({ 'id': id }, function (err, result) {
+    assert.equal(err, null);
+    console.log("Found it!")
+    console.log(result);
+    callback(result);
+  });
+}
+
 
 // START MONGODB CONNECTION //
-MongoClient.connect(url, { useNewUrlParser: true }, function (err, client) {
+MongoClient.connect(url, { useNewUrlParser: true, connectTimeoutMS: 30000 }, function (err, client) {
   assert.equal(null, err);
   console.log("Connected successfully to some Mongo server!");
 
@@ -31,23 +41,22 @@ MongoClient.connect(url, { useNewUrlParser: true }, function (err, client) {
   app.set('views', path.join(__dirname, 'views'));
   app.set('view engine', 'ejs');
 
+
   // BEGIN ROUTES //
-  app.get('/', (req, res) => {
-    res.render('pages/main', { message: 'No products to show.' });
-  });
-
   app.get('/products/:id', (req, res) => {
-    let id = req.params.id;
-
-
     // Calls Redsky API to get product info //
-    async function getData(id) {
+    async function getData(id, excludesString) {
       try {
-        let response = await fetch(`https://redsky.target.com/v2/pdp/tcin/13860428`);
+        let response = await fetch(`https://redsky.target.com/v2/pdp/tcin/${id}?excludes=${excludesString}`);
         if (response.ok) {
           let jsonResponse = await response.json();
-          console.log(jsonResponse);
-          return jsonResponse;
+
+          let productName = jsonResponse.product.item['product_description'].title;
+
+
+
+          res.send({ 'productName': productName, 'productId': req.params.id });
+          return;
         }
         throw new Error('Request failed.');
       } catch (error) {
@@ -55,20 +64,12 @@ MongoClient.connect(url, { useNewUrlParser: true }, function (err, client) {
       }
     }
 
-    getData(id);
+    getData(req.params.id, testExclude);
 
 
-
-    res.render('pages/main', { message: req.params.id });
   });
 
-
-
-
-
-
   app.listen(PORT, () => console.log(`Listening on ${PORT}`));
-  client.close();
 });
 
 
