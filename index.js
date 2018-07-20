@@ -1,9 +1,7 @@
 const express = require('express');
 const app = express();
-const path = require('path');
 const PORT = process.env.PORT || 5000;
 const MongoClient = require('mongodb').MongoClient;
-const bodyParser = require('body-parser');
 const fetch = require("node-fetch");
 
 const url = 'mongodb://heroku_75zdms2r:3rfek657p2ha1h7dskti6ovug3@ds143511.mlab.com:43511/heroku_75zdms2r';
@@ -11,82 +9,40 @@ const dbName = 'heroku_75zdms2r';
 
 const excludeForTest = 'taxonomy,price,promotion,bulk_ship,rating_and_review_reviews,rating_and_review_statistics,question_answer_statistics';
 
-let db;
-
 MongoClient.connect(url, { useNewUrlParser: true }, function (err, client) {
   if (err) throw err;
   console.log("Connected successfully to Mongo server!");
 
-  db = client.db(dbName);
+  const db = client.db(dbName);
+  const collection = db.collection('products');
+
+  app.get('/products/:id', (req, res) => {
+    // Call Redsky API to get product info
+    (async () => {
+      try {
+        let response = await fetch(`https://redsky.target.com/v2/pdp/tcin/${req.params.id}?excludes=${excludeForTest}`);
+
+        if (response.ok) {
+          let jsonResponse = await response.json();
+
+          let productName = jsonResponse.product.item['product_description'].title;
+
+          collection.find().toArray((err, result) => {
+            if (err) throw err;
+
+            let product = result.find(item => item.id == req.params.id);
+
+            res.send(product);
+          });
+          return;
+        } throw new Error('Request failed.');
+      } catch (error) {
+        console.log(error);
+      }
+    })();
+  });
 
   app.listen(PORT, () => console.log(`Listening on ${PORT}`));
 });
-// *** Do not explicitly close database connection- this will mess up the MongoDB call within the GET request. Connection should close automatically. 
+// ** Do not explicitly close database connection- connection should close automatically when we're done. 
 
-
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, 'public')));
-app.set('views', path.join(__dirname, 'views'))
-app.set('view engine', 'ejs');
-
-
-app.get('/', (req, res) => {
-  res.render('index.ejs');
-});
-
-app.get('/products/:id', (req, res) => {
-  // Call Redsky API to get product info
-  (async () => {
-    try {
-      let response = await fetch(`https://redsky.target.com/v2/pdp/tcin/${req.params.id}?excludes=${excludeForTest}`);
-
-      if (response.ok) {
-        let jsonResponse = await response.json();
-
-        let productName = jsonResponse.product.item['product_description'].title;
-
-        let collection = db.collection('products');
-
-        collection.findOne({ 'id': req.params.id }, (err, result) => {
-          if (err) throw err;
-          res.send(result);
-          //////////STUCK HERE NOT GETTINGA RESULT 
-        });
-
-        /*
-        { 'id': req.params.id }, 
-        (err, result) => {
-          if (err) throw err;
-          console.log(result);
-          let priceInfo = result['current_price'];
-
-          res.send({ 'id': req.params.id, 'name': productName, 'current_price': priceInfo });
-          */
-
-        return;
-      } throw new Error('Request failed.');
-    } catch (error) {
-      console.log(error);
-    }
-  })();
-});
-
-
-app.post('/products', (req, res) => {
-  let id = req.body.id;
-  let price = req.body.price;
-
-  const collection = db.collection('products');
-  /*
-    collection.updateOne({ 'id': id }, { $set: { name: price } }, (err, result) => {
-      if (err) throw err;
-  
-      console.log(result);
-      return;
-    });
-    // res.render('updated.ejs', { name: name, price: price });
-  */
-});
-
-app.post('/products/:id', (req, res) => {
-});
