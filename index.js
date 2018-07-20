@@ -37,10 +37,11 @@ MongoClient.connect(url, { useNewUrlParser: true }, function (err, client) {
 
           let productName = jsonResponse.product.item['product_description'].title;
 
-
           collection.findOne({ 'id': 11346672 }, (err, result) => {
             if (err) throw err;
-            res.send({ 'productName': productName, 'productId': req.params.id, 'product': result });
+            let priceInfo = result['current_price'];
+
+            res.send({ 'id': req.params.id, 'name': productName, 'current_price': priceInfo });
           });
 
           return;
