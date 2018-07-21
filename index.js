@@ -5,7 +5,7 @@ const MongoClient = require('mongodb').MongoClient;
 const fetch = require('node-fetch');
 const bodyParser = require('body-parser');
 
-app.use(bodyParser.text({ type: 'application/json', extended: false }));
+app.use(bodyParser.json({ type: 'application/json', extended: false }));
 
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -34,14 +34,11 @@ MongoClient.connect(url, { useNewUrlParser: true }, function (err, client) {
         if (response.ok) {
           let jsonResponse = await response.json();
 
-          let productName = jsonResponse.product.item['product_description'].title;
+          let id = parseInt(req.params.id)
 
-          collection.find().toArray((err, result) => {
+          collection.findOne({ 'id': id }, (err, result) => {
             if (err) throw err;
-
-            let product = result.find(item => item.id == req.params.id);
-
-            res.send(product);
+            res.send({ 'id': id, 'name': jsonResponse.product.item.product_description.title, 'current_price': result.current_price });
           });
           return;
         } throw new Error('Request failed.');
@@ -52,22 +49,11 @@ MongoClient.connect(url, { useNewUrlParser: true }, function (err, client) {
   });
 
   app.post('/products/:id', (req, res) => {
-    let id = req.body.id;
-    let price = req.body.price;
-
-    console.log(id);
-    console.log(price);
-
-
-    //UPDATEONE NOT RETURNING OR WORKING
-    collection.updateOne({ 'id': id }, { $set: { 'name': price } }, (err, result) => {
+    collection.findOneAndUpdate({ 'id': parseInt(req.params.id) }, { $set: { 'current_price.value': req.body.price } }, { returnOriginal: false }, (err, result) => {
       if (err) throw err;
-
       console.log('Database updated.');
-      return;
+      res.send(result);
     });
-
-
   });
 
   app.listen(PORT, () => console.log(`Listening on ${PORT}`));
