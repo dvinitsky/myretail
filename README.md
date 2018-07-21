@@ -1,4 +1,4 @@
-**myRetail API Documentation**
+#**myRetail API Documentation**
 
 To access, send an HTTP request to "https://vinitsky-myretail.herokuapp.com/products/{id}". The ID should be the eight-digit Target product ID.
 
@@ -13,3 +13,7 @@ The following IDs are available in the MongoDB databse for this case study:
 16700437  
 11335147  
 11346672
+
+##Testing
+
+To test the myRetail API, open the public/tester.html file in your browser. Input a product's ID and a new price, and hitting Submit will update the product in the MongoDB database with the new price.
