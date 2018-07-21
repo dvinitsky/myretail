@@ -16,4 +16,4 @@ The following IDs are available in the MongoDB databse for this case study:
 
 ## Testing
 
-To test the myRetail API, open the public/tester.html file in your browser. Input a product's ID and a new price, and hitting Submit will update the product in the MongoDB database with the new price.
+To test the myRetail API, open the public/test.html file in your browser. Input a product's ID and a new price, and hitting Submit will update the product in the MongoDB database with the new price.
