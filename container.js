@@ -21,7 +21,7 @@ async function getAPIData(id, price, callback) {
 document.getElementById('submit-button').onclick = () => {
   getAPIData(document.getElementById('id').value, document.getElementById('price').value, response => {
     let message;
-    if (response.name) {
+    if (response !== null) {
       message = `${response.name} updated with new price: ${response.current_price.value}.`;
     } else {
       message = `That ID does not exist in the database.`;
