@@ -7,7 +7,7 @@ The API will return a JSON object in the following format:
 
 Product ID and name are pulled from the Target.com product page, e.g. https://www.target.com/p/the-big-lebowski-blu-ray/-/A-13860428. The price info is pulled from my MongoDB database hosted in mLab, hosted on Heroku.
 
-The following IDs are available in the MongoDB databse for this case study:  
+The following IDs are available in the MongoDB database for this case study:  
 13860428  
 14090750  
 16700437  
